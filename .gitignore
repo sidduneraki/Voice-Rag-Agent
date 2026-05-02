@@ -1,0 +1,23 @@
+# Environment
+.env
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Poetry
+.venv/
+
+# Data — don't commit uploaded files or vector DB
+data/
+data/uploads/
+data/chroma_db/
+data/test_audio*
+logs/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
