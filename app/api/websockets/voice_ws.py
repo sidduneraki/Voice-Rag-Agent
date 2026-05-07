@@ -12,7 +12,7 @@ async def voice_endpoint(websocket: WebSocket):
 
     audio_in_queue = asyncio.Queue()
     audio_out_queue = asyncio.Queue()
-    pipeline = VoicePipeline()
+    pipeline = VoicePipeline() # for voice pipeline 
 
     async def receive_audio():
         try:
