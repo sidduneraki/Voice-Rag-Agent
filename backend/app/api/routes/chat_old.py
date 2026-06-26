@@ -1,22 +1,21 @@
 from fastapi import APIRouter
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
+from app.rag.retriever import Retriever
 from app.llm.factory import get_llm
 from app.core.logger import logger
-from app.rag_service import rag_service
 
 router = APIRouter()
-
 
 class ChatRequest(BaseModel):
     question: str
 
-
 @router.post("/chat")
 async def chat(request: ChatRequest):
     logger.info(f"Chat question: {request.question}")
-    prompt = rag_service.retriever.build_prompt(request.question)
+    retriever = Retriever()
     llm = get_llm()
+    prompt = retriever.build_prompt(request.question)
 
     async def token_stream():
         async for token in llm.stream(prompt):

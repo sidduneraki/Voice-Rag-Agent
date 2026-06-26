@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react"
-import { Message } from "./ChatHistory"
+import type { Message } from "./ChatHistory"
 
 const WS_URL = "ws://localhost:8000/ws/voice"
 

@@ -1,0 +1,14 @@
+data/
+logs/
+.env
+.venv/
+__pycache__/
+*.py[cod]
+*.pyo
+.git
+tests/
+*.wav
+*.mp3
+*.raw
+poetry.lock
+pyproject.toml

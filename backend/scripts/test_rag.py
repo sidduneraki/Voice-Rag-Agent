@@ -14,7 +14,7 @@ async def test():
     #print(chunks)
 
     # Retrieve + LLM
-    retriever = Retriever()
+    retriever = Retriever(pipeline=pipeline)
     llm = get_llm()
 
     query = "What is this document about?"
@@ -24,4 +24,6 @@ async def test():
     response = await llm.generate(prompt)
     logger.success(f"Answer: {response}")
 
-asyncio.run(test())
+if __name__ == "__main__":
+    asyncio.run(test())
+

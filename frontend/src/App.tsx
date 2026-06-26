@@ -72,7 +72,7 @@ function ChatHistory({ messages }: { messages: Message[] }) {
   )
 }
 
-function VoiceButton({ onMessage }: { onMessage: (m: Message) => void }) {
+function VoiceButton({ onMessage: _onMessage }: { onMessage: (m: Message) => void }) {
   const [active, setActive] = useState(false)
   const [bars, setBars] = useState<number[]>(Array(20).fill(2))
   const [ttsActive, setTtsActive] = useState(false)

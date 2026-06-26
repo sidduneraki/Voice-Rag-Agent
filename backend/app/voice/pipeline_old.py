@@ -4,6 +4,7 @@ from enum import Enum
 from app.voice.stt import DeepgramSTT
 from app.voice.tts import DeepgramTTS
 from app.voice.vad import VAD
+from app.rag.retriever import Retriever
 from app.llm.factory import get_llm
 from app.core.logger import logger
 
@@ -15,11 +16,11 @@ class PipelineState(Enum):
 
 
 class VoicePipeline:
-    def __init__(self, retriever):
+    def __init__(self):
         self.stt        = DeepgramSTT()
         self.tts        = DeepgramTTS()
         self.vad        = VAD()
-        self.retriever  = retriever         # shared — same instance as chat and upload
+        self.retriever  = Retriever()
         self.llm        = get_llm()
         self.state      = PipelineState.LISTENING
         self._speak_task: asyncio.Task | None = None
@@ -43,13 +44,12 @@ class VoicePipeline:
             logger.info("TTS interrupted by user")
         self._speak_task = None
         self.state = PipelineState.LISTENING
-
     def _clean_for_tts(self, text: str) -> str:
         import re
-        text = re.sub(r'\*+', '', text)
-        text = re.sub(r'^[-•]\s+', '', text, flags=re.MULTILINE)
-        text = re.sub(r'^\d+\.\s+', '', text, flags=re.MULTILINE)
-        text = re.sub(r'\s+', ' ', text)
+        text = re.sub(r'\*+', '', text)          # remove bold/italic
+        text = re.sub(r'^[-•]\s+', '', text, flags=re.MULTILINE)  # remove bullets
+        text = re.sub(r'^\d+\.\s+', '', text, flags=re.MULTILINE) # remove numbered lists
+        text = re.sub(r'\s+', ' ', text)          # collapse whitespace
         return text.strip()
 
     async def _speak(self, prompt: str, audio_out_queue: asyncio.Queue):
@@ -94,10 +94,12 @@ class VoicePipeline:
                 if chunk is None:
                     await filtered_queue.put(None)
                     break
+                # Detect interruption FIRST (before any drop)
                 if self.state != PipelineState.LISTENING:
                     if self._is_user_speaking(chunk):
                         logger.info("Interruption detected — cancelling")
                         self._cancel_speaking()
+                # Block STT during speaking (prevent feedback loop)
                 if self.state == PipelineState.SPEAKING:
                     continue
                 await filtered_queue.put(chunk)
@@ -114,8 +116,10 @@ class VoicePipeline:
                     break
 
                 transcript = transcript.strip()
+
                 if len(transcript) < 3:
                     continue
+
                 if transcript == self._last_transcript:
                     continue
 

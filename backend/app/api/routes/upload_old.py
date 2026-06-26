@@ -1,12 +1,11 @@
 import shutil
 from pathlib import Path
 from fastapi import APIRouter, UploadFile, File, HTTPException
+from app.rag.ingestion import IngestionPipeline
 from app.core.config import get_settings
 from app.core.logger import logger
-from app.rag_service import rag_service
 
 router = APIRouter()
-
 
 @router.post("/upload")
 async def upload_document(file: UploadFile = File(...)):
@@ -21,5 +20,7 @@ async def upload_document(file: UploadFile = File(...)):
         shutil.copyfileobj(file.file, f)
     logger.info(f"Saved upload: {file.filename}")
 
-    count = rag_service.pipeline.ingest_pdf(str(file_path))
+    pipeline = IngestionPipeline()
+    count = pipeline.ingest_pdf(str(file_path))
+
     return {"filename": file.filename, "chunks_ingested": count}

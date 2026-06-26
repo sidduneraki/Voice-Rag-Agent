@@ -34,4 +34,6 @@ async def test():
     while not transcript_queue.empty():
         logger.success(await transcript_queue.get())
 
-asyncio.run(test())
+if __name__ == "__main__":
+    asyncio.run(test())
+

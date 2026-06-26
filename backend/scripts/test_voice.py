@@ -11,7 +11,8 @@ async def test():
         f.write(audio)
     logger.success(f"TTS works! Audio saved to data/test_output.mp3 ({len(audio)} bytes)")
 
-asyncio.run(test())
+if __name__ == "__main__":
+    asyncio.run(test())
 #########################################################
 #to test stt
 # import asyncio

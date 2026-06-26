@@ -1,7 +1,6 @@
 import asyncio
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from app.voice.pipeline import VoicePipeline
-from app.rag_service import rag_service
 from app.core.logger import logger
 
 router = APIRouter()
@@ -11,11 +10,9 @@ async def voice_endpoint(websocket: WebSocket):
     await websocket.accept()
     logger.info("Voice WebSocket connected")
 
-    audio_in_queue  = asyncio.Queue()
+    audio_in_queue = asyncio.Queue()
     audio_out_queue = asyncio.Queue()
-
-    # Pass shared retriever — voice now queries the same collection as chat
-    pipeline = VoicePipeline(retriever=rag_service.retriever)
+    pipeline = VoicePipeline() # for voice pipeline 
 
     async def receive_audio():
         try:
